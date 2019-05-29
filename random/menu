@@ -1,0 +1,73 @@
+local menuTable={
+{{1,1}, "Say Hi!", "Hello!"},
+{{1,2}, "Secret", "YEET MODO-FOKER",}
+}
+
+local menuVal=1
+local oldMenuVal=1
+
+local function updateSelect(pPixel)
+    local oOffset = string.len(menuTable[oldMenuVal][2])+1
+    local nOffset = string.len(menuTable[menuVal][2])+1
+    local oX,oY = menuTable[oldMenuVal][1][1]+oOffset,menuTable[oldMenuVal][1][2]
+    local nX,nY = menuTable[menuVal][1][1]+nOffset,menuTable[menuVal][1][2]
+    term.setCursorPos(oX,oY)
+    term.write(' ')
+    term.setCursorPos(nX,nY)
+    term.write(pPixel)
+end
+
+local function updateSelection(boolean)
+  if not type(boolean) then
+    error('expected boolean')
+  end
+  oldMenuVal=menuVal
+  if boolean then
+    if menuVal<#menuTable then
+      menuVal=menuVal+1
+    else
+      menuVal=1
+    end
+  else
+    if menuVal>1 then
+      menuVal=menuVal-1 
+    else
+      menuVal=tonumber(#menuTable)
+    end
+  end
+end
+
+local function drawMenu(mMenu)
+    term.clear()
+    for i=1,#mMenu do
+        term.setCursorPos(mMenu[i][1][1],mMenu[i][1][2])
+        term.write(mMenu[i][2])
+    end
+    term.setCursorPos(string.len(menuTable[menuVal][2])+2,menuTable[menuVal][1][2])
+    term.write('<')    
+end
+
+--print('test')
+drawMenu(menuTable)
+
+while true do
+  local event,key=os.pullEvent('key')
+  if key == keys.up then
+    updateSelection(true)
+    updateSelect('<')
+  elseif key == keys.down then
+    updateSelection(false)
+    updateSelect('<')
+  elseif key == keys.enter then
+    term.clear()
+    term.setCursorPos(1,1)
+    term.write(menuTable[menuVal][3])
+    sleep(3)
+    drawMenu(menuTable)
+    --break
+  else
+  end
+end
+
+
+
