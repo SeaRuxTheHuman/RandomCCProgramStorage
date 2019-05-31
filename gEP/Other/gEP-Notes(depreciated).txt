@@ -1,0 +1,11 @@
+-put interactables and solids in same table
+-make sure player cant go outside map bountries
+-location dependent actions? -- done.. sort of.
+-tiles that will trigue an action when player is on them
+-mouse interaction -- sort of?
+
+
+
+-menus? -not priority
+-make all functions that differ between OC and CC run out of a table
+so game can be easily cross platformed. -non-priority
