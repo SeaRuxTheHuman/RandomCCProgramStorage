@@ -1,32 +1,5 @@
 local tTable={}
 
-
-local localKeys = {
-{2,'1','!'}; 
-{3,'2','@'};
-{4,'3','#'};
-{5,'4','$'};
-{6,'5','%'};
-{7,'6','^'};
-{8,'7','&'};
-{9,'8','*'};
-{10,'9','('};
-{11,'0',')'};
-{12,'-','_'};
-{13,'=','+'};
---add more keys here
-{41,'`','~'};
---and here!
-{51,',','<'};
-{52,'.','>'};
-
-}
-
-local keyFile=textutils.serialise(localKeys)
-f=fs.open('projectKeychecks/keyList.txt', 'w')
-f.write(keyFile)
-f.close()
-
 local xSize, ySize = term.getSize()
 
 local function dDebug()
@@ -44,12 +17,18 @@ end
 term.setCursorPos(xSize/2,1)
 term.write(localKeys[5][2])
 ]]--
+
 end
 
 local function readyStuff()
     paintutils.drawFilledBox(1,1,xSize,ySize, colors.lightBlue)
-    
-    paintutils.drawFilledBox(xSize/2-12,1,xSize/2+13,ySize, colors.white)
+    paintutils.drawFilledBox(math.floor(xSize/2-12),1,xSize/2+12,ySize, colors.white)
+
+    term.setCursorPos(xSize-5, 1)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.gray)
+    term.write('Finish')
+
     term.setTextColor(colors.black)
     term.setBackgroundColor(colors.white)
     --dDebug()
@@ -68,41 +47,41 @@ fillTable()
 
 local function writeChar(sString)
     local sString = tostring(sString)
-    if string.len(sString) > 1 then 
+    if string.len(sString) > 1 then
         error('too many characters')
         --printError('too Many Characters')
     end
-    
+
     local trX,y=term.getCursorPos()
-    
+
     x = trX-12
-    
+
     for i = 1,y do
       if tTable[i] == nil then
           table.insert(tTable,{})
       end
     end
-    
+
     for i = 1,x do
         if tTable[y][i] == nil then
             table.insert(tTable,{})
         end
     end
-    if trX<39 and trX>12 then 
+    if trX<39 and trX>12 then
         if tTable[y][x] ~= nil then
             table.remove(tTable[y],x)
         end
         table.insert(tTable[y],x,sString)
-        term.write(sString)  
+        term.write(sString)
     end
-    
-    if trX>37 then 
+
+    if trX>37 then
         term.setCursorPos(trX-25,y+1)
-    end 
+    end
 end
 
 local function mouseCursor()
-    
+
 end
 
 readyStuff()
@@ -113,51 +92,30 @@ local shift = false
 while true do
  local event,valA,valB,valC=os.pullEvent()
   if event == 'mouse_click' then --mouse click
-      if valB > xSize/2+13 then
-      break
+      if valB > xSize-5 and valC == 1 then
+        break
       else
-      term.setCursorPos(valB,valC)
-      wW,hH = valB,valC
+
+      if valB > xSize/2-13 and valB < xSize/2+12 then
+        term.setCursorPos(valB,valC)
+        term.write(string.char(127))
+        sleep(0.1)
+        if tTable[valC][valB-12] ~= nil then
+          term.setCursorPos(valB,valC)
+          term.write(tostring(tTable[valC][valB-12]))
+        end
+        term.setCursorPos(valB,valC)
+        wW,hH = valB,valC
       end
-        
-  elseif event == 'key' then --key click
-  
-    for i = 1,#localKeys do
-      if valA == localKeys[i][1] then
-          kKey=localKeys[i]
-          break
-      else
-          kKey=keys.getName(valA)
       end
-    end
-    
-    if keys.getName(valA)=='leftShift' then
-         shift=true
-    end   
-    
-    if shift then
-        if type(kKey) == 'table' then
-            kKey=kKey[3]
-        end
-        
-        if string.len(kKey) < 2 then
-            writeChar(string.upper(kKey))
-            shift=false
-        end
-    elseif not shift then  
-        if type(kKey) == 'table' then
-            kKey = kKey[2]
-        end 
-                 
-        if string.len(kKey) < 2 then
-            writeChar(kKey)
-        end
-    else
-    end
-       
-    if keys.getName(valA) == 'space' then
-        writeChar(' ')
-    elseif keys.getName(valA) == 'enter' then
+
+  elseif event == 'char' then --key click
+    writeChar(valA)
+
+
+  elseif event == 'key' then
+
+    if keys.getName(valA) == 'enter' then
         term.setCursorPos(wW,hH+1)
         wW,hH=wW,hH+1
     elseif keys.getName(valA) == 'backspace' then
@@ -167,11 +125,11 @@ while true do
         term.setCursorPos(xN-1,yN)
     else
     end
-        
-  else
-  end  
-end
 
+  else
+  end
+end
+---------------------------------LOOP ENDS HERE
 
 term.setBackgroundColor(colors.black)
 term.setTextColor(colors.white)
@@ -181,26 +139,23 @@ term.setCursorPos(1,1)
 
 y=1
 local fileDir='temp.tst'
+
 if fs.exists(fileDir) == true then
   fs.delete(fileDir)
 else
 end
 
 file = fs.open(fileDir, 'w')
-for i = 1,#tTable do
 
-    --for j = 1,#tTable[i] do
-    --  term.write(tTable[i][j])
-    --end
-    term.write(table.concat(tTable[i]))
-    file.writeLine(table.concat(tTable[i]))
+for i = 1,#tTable do
+    writing = table.concat(tTable[i])
+    textutils.slowWrite(writing)
+    file.writeLine(writing)
     term.setCursorPos(1,y+1)
     y=y+1
-    sleep(0.1)
 end
 
 file.close()
 
 x,y=term.getSize()
 term.setCursorPos(1,y)
-
